@@ -1,0 +1,6 @@
+version: '2'
+services:
+  dynamodb:
+    image: bhuisgen/alpine-dynamodb
+    ports:
+      - "8898:8000"

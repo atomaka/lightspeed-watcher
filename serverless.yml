@@ -1,0 +1,54 @@
+service: lightspeed-watcher
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  environment:
+    ZONES: ${env:ZONES}
+    LIGHTSPEED_TABLE: lightspeed-checks-${opt:stage, self:provider.stage}
+    DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT}
+
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.LIGHTSPEED_TABLE}
+        AttributeDefinitions:
+          - AttributeName: area
+            AttributeType: S
+          - AttributeName: time
+            AttributeType: S
+        KeySchema:
+          - AttributeName: area
+            KeyType: HASH
+          - AttributeName: time
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    DynamoDBIamPolicy:
+      Type: AWS::IAM::Policy
+      DependsOn: DynamoDbTable
+      Properties:
+        PolicyName: lambda-dynamodb
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Query
+              Resource: arn:aws:dynamodb:*:*:table/${self:provider.environment.LIGHTSPEED_TABLE}
+        Roles:
+          - Ref: IamRoleLambdaExecution
+
+functions:
+  check:
+    handler: handler.check
+    timeout: 15
+    events:
+    - schedule:
+        rate: rate(60 minutes)
+        enabled: true
