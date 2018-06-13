@@ -1,5 +1,8 @@
 yarnbin = $(shell yarn bin)
 
+run:
+	sh -c "source .env; $(yarnbin)/serverless offline"
+
 test:
 	sh -c "source .env; $(yarnbin)/serverless invoke local --function check"
 

@@ -44,6 +44,10 @@ resources:
         Roles:
           - Ref: IamRoleLambdaExecution
 
+plugins:
+  - serverless-offline
+
+
 functions:
   check:
     handler: handler.check
