@@ -1,6 +1,10 @@
 version: '2'
 services:
   dynamodb:
-    image: bhuisgen/alpine-dynamodb
+    image: verkhoro/moto:1.1.23
+    command:
+      - dynamodb2
+      - "-p"
+      - "8000"
     ports:
       - "8898:8000"
