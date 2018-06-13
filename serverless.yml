@@ -56,3 +56,11 @@ functions:
     - schedule:
         rate: rate(1 day)
         enabled: true
+  data:
+    handler: handler.data
+    timeout: 10
+    events:
+      - http:
+          path: data/{zone}
+          method: get
+          cors: true

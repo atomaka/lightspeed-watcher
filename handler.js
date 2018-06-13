@@ -70,3 +70,31 @@ module.exports.check = (event, context, callback) => {
     })
     .catch(error => callback(error))
 }
+
+module.exports.data = (event, context, callback) => {
+  const zone = event.pathParameters.zone
+  const params = {
+    TableName: process.env.LIGHTSPEED_TABLE,
+    KeyConditionExpression: "#area = :area",
+    ExpressionAttributeNames: {
+      '#area': 'area',
+    },
+    ExpressionAttributeValues: {
+      ':area': zone,
+    },
+    ScanIndexForward: false
+  }
+
+  if(event.queryStringParameters && event.queryStringParameters.latest) {
+    params.Limit = event.queryStringParameters.latest
+  }
+
+  ddb.query(params).promise()
+    .then(data => {
+      callback(null, { statusCode: 200, body: JSON.stringify(data.Items) })
+    })
+    .catch(error => {
+      console.log(error)
+      callback(error)
+    })
+}
